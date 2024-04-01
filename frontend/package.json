@@ -10,8 +10,15 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxtjs/auth": "^4.9.1",
+    "@nuxtjs/axios": "^5.13.6",
     "nuxt": "^3.11.1",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@bootstrap-vue-next/nuxt": "^0.16.6",
+    "bootstrap": "^5.3.3",
+    "bootstrap-vue-next": "^0.16.6"
   }
 }
