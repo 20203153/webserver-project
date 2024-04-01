@@ -2,8 +2,16 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
+    '@pinia/nuxt',
     '@bootstrap-vue-next/nuxt'
   ],
+  imports: {
+    dirs: ['./stores']
+  },
+  pinia: {
+    // @ts-ignore
+    autoImports: ['defineStore', 'acceptHMRUpdate']
+  },
   css: ['bootstrap/dist/css/bootstrap.min.css'],
   runtimeConfig: {
     public: {
