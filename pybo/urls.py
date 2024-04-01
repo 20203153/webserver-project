@@ -23,5 +23,9 @@ from pybo import views
 urlpatterns = [
     path('', views.QuestionListAPI.as_view(), name='index'),
     path('<int:question_id>/', views.QuestionDetailAPI.as_view(), name='question'),
-    path('<int:question_id>/<int:answer_id>/', views.AnswerDetailAPI.as_view(), name='answer')
+    path('question/', views.QuestionCreateAPI.as_view(), name='question_create'),
+    path('<int:question_id>/<int:answer_id>/', views.AnswerDetailAPI.as_view(), name='answer'),
+    path('answer/<int:question_id>', views.AnswerCreateAPI.as_view(), name='answer_create'),
+    path('topics/', views.TopicListAPI.as_view(), name='topics'),
+    path('topics/<int:topic_id>/', views.TopicAPI.as_view(), name='topic')
 ]

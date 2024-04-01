@@ -1,21 +1,27 @@
 from rest_framework import serializers
 
-from pybo.models import Question, Answer
+from pybo.models import Question, Answer, QuestionTopic
+
+
+class QuestionTopicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionTopic
+        fields = 'content',
 
 
 class QuestionListSerializer(serializers.ModelSerializer):
-    topic = serializers.StringRelatedField(many=True)
-    question_owner = serializers.StringRelatedField(source='question_owner.profile.nickname', read_only=True)
-    question_owner_id = serializers.IntegerField(source='question_owner.id', read_only=True)
+    topic = serializers.StringRelatedField(many=True, read_only=True)
+    owner = serializers.StringRelatedField(source='owner.profile.nickname', read_only=True)
+    owner_id = serializers.IntegerField(source='owner.id', read_only=True)
 
     class Meta:
         model = Question
-        fields = 'id', 'subject', 'created_at', 'updated_at', 'topic', 'question_owner', 'question_owner_id'
+        fields = 'id', 'subject', 'created_at', 'updated_at', 'topic', 'owner', 'owner_id', 'hit'
 
 
 class AnswerSerializer(serializers.ModelSerializer):
-    answer_owner = serializers.StringRelatedField(source='answer_owner.profile.nickname', read_only=True)
-    answer_owner_id = serializers.IntegerField(source='answer_owner.id', read_only=True)
+    owner = serializers.StringRelatedField(source='owner.profile.nickname', read_only=True)
+    owner_id = serializers.IntegerField(source='owner.id', read_only=True)
 
     class Meta:
         model = Answer
@@ -23,13 +29,13 @@ class AnswerSerializer(serializers.ModelSerializer):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    question_owner = serializers.StringRelatedField(source='question_owner.profile.nickname', read_only=True)
-    question_owner_id = serializers.IntegerField(source='question_owner.id', read_only=True)
+    owner = serializers.StringRelatedField(source='owner.profile.nickname', read_only=True)
+    owner_id = serializers.IntegerField(source='owner.id', read_only=True)
 
     answer = AnswerSerializer(many=True, source='answer_set', read_only=True)
-    topic = serializers.StringRelatedField(many=True)
+    topic = serializers.SlugRelatedField(slug_field='content', many=True, queryset=QuestionTopic.objects)
 
     class Meta:
         model = Question
         fields = ('id', 'subject', 'content', 'created_at', 'updated_at',
-                  'topic', 'question_owner', 'question_owner_id', 'answer')
+                  'topic', 'owner', 'owner_id', 'answer', 'hit')

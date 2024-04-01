@@ -15,7 +15,8 @@ class Question(models.Model):
     topic = models.ManyToManyField(QuestionTopic, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    question_owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    hit = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Question: {self.id} - {self.subject}"
@@ -26,7 +27,7 @@ class Answer(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    answer_owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Answer: {self.question_id} - {self.content}"
