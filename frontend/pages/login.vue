@@ -12,8 +12,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const login = async() => {
-  const payload = user.value
-  await authStore.authUser(payload)
+  await authStore.authUser(user.value)
 
   if (authStore.authenticated) {
     await router.push('/')

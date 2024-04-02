@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from pybo.models import Question, Answer, QuestionTopic
 from pybo.serializers import QuestionSerializer, QuestionListSerializer, AnswerSerializer, QuestionTopicSerializer
@@ -23,6 +24,7 @@ class QuestionListAPI(ListAPIView):
 
 class QuestionCreateAPI(APIView):
     serializer_class = QuestionSerializer
+    authentication_classes = [JWTAuthentication]
     permission_classes = [CustomReadOnly]
 
     def post(self, request, *args, **kwargs):
@@ -36,6 +38,7 @@ class QuestionCreateAPI(APIView):
 
 class QuestionDetailAPI(APIView):
     serializer_class = QuestionSerializer
+    authentication_classes = [JWTAuthentication]
     permission_classes = [CustomReadOnly]
 
     def get(self, request, question_id=None, *args, **kwargs):
@@ -71,6 +74,7 @@ class QuestionDetailAPI(APIView):
 
 class AnswerDetailAPI(APIView):
     serializer_class = AnswerSerializer
+    authentication_classes = [JWTAuthentication]
     permission_classes = [CustomReadOnly]
 
     def get(self, request, answer_id=None, *args, **kwargs):
@@ -105,14 +109,18 @@ class AnswerDetailAPI(APIView):
 
 class AnswerCreateAPI(APIView):
     serializer_class = AnswerSerializer
-    permission_classes = [CustomReadOnly]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, question_id=None, *args, **kwargs):
         qid = question_id or self.kwargs.get('question_id')
         question = get_object_or_404(Question, id=qid)
 
         serializer = AnswerSerializer(data=request.data)
-        if serializer.is_valid():
+        print(request.user)
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        elif serializer.is_valid():
             serializer.save(question_id=question.id, owner_id=request.user.id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:

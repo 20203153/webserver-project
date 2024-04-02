@@ -25,7 +25,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'password2')
+        fields = 'username', 'email', 'password', 'password2'
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
@@ -59,4 +59,39 @@ class LoginSerializer(serializers.Serializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ("nickname", "image")
+        fields = 'nickname', 'image'
+
+
+class UserSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer()
+    username = serializers.CharField(read_only=True)
+    password = serializers.CharField(write_only=True, allow_blank=True)
+
+    class Meta:
+        model = User
+        fields = 'id', 'username', 'email', 'profile', 'password'
+
+    def to_representation(self, instance):
+        return {
+            'id': instance.id,
+            'username': instance.username,
+            'email': instance.email,
+            'nickname': instance.profile.nickname,
+            'image': str(instance.profile.image)
+        }
+
+    def create(self, validated_data):
+        profile_data = validated_data.pop('profile')
+        user = User.objects.create_user(**validated_data)
+        Profile.objects.create(**profile_data, id=user.id)
+        user.set_password(validated_data['password'])
+        return
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop('profile')
+        print(validated_data)
+        if profile_data:
+            instance.profile.nickname = validated_data['nickname']
+            instance.profile.image = validated_data['image']
+            instance.profile.save()
+        return super().update(instance, validated_data)
