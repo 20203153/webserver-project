@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import nuxt from 'nuxt'
 
+const _15MIN = 15 * 60 * 1000;
+
 export const useAuthStore = defineStore('auth', () => {
     const authenticated = ref(false)
     const loading = ref(false)
@@ -9,7 +11,8 @@ export const useAuthStore = defineStore('auth', () => {
         username: '',
         email: '',
         nickname: '',
-        image: ''
+        image: '',
+        lastUpdate: new Date()
     })
 
     const token = useCookie('token')
@@ -30,11 +33,14 @@ export const useAuthStore = defineStore('auth', () => {
             }
         })
         if(response) {
-            userInfo.value.id = response.id
-            userInfo.value.email = response.email
-            userInfo.value.image = response.image
-            userInfo.value.nickname = response.nickname
-            userInfo.value.username = response.username
+            userInfo.value = {
+                id: response.id,
+                email: response.email,
+                image: response.image,
+                nickname: response.nickname,
+                username: response.username,
+                lastUpdate: new Date()
+            }
         } else {
             token.value = null
             refreshToken.value = null
@@ -77,9 +83,20 @@ export const useAuthStore = defineStore('auth', () => {
         authenticated.value = false
         token.value = null
         loading.value = false
+        userInfo.value = {
+            id: 0,
+            email: '',
+            username: '',
+            image: '',
+            nickname: '',
+            lastUpdate: new Date()
+        }
     };
 
     const refresh = async () => {
+        if(new Date().getTime() < userInfo.value.lastUpdate.getTime() + _15MIN)
+            return
+
         loading.value = true
         // @ts-ignore
         const response: {access: string, refresh: string} = await $fetch(`${BASE_URL}/users/login/refresh/`,{
@@ -95,6 +112,7 @@ export const useAuthStore = defineStore('auth', () => {
         if(response) {
             token.value = response.access
             refreshToken.value = response.refresh
+            userInfo.value.lastUpdate = new Date()
         } else {
             token.value = null
             refreshToken.value = null

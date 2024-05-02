@@ -17,9 +17,16 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 
 class QuestionListAPI(ListAPIView):
-    queryset = Question.objects.all().order_by('-id')
     serializer_class = QuestionListSerializer
     pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        queryset = Question.objects.all().order_by('-id')
+        topics = self.request.query_params.get('topic', None)
+        if topics is not None:
+            topic_list = topics.split(',')
+            queryset = queryset.filter(topic__content__in=topic_list)
+        return queryset
 
 
 class QuestionCreateAPI(APIView):
@@ -30,6 +37,7 @@ class QuestionCreateAPI(APIView):
     def post(self, request, *args, **kwargs):
         serializer = QuestionSerializer(data=request.data)
         if serializer.is_valid():
+            print(request.user.id)
             serializer.save(owner_id=request.user.id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:

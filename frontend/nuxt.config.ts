@@ -1,6 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  build: {
+    transpile: ['Dayjs'],
+  },
   modules: [
     '@pinia/nuxt',
     '@bootstrap-vue-next/nuxt'

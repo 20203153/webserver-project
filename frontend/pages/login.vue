@@ -10,6 +10,14 @@ const user = ref({
 const router = useRouter()
 
 const authStore = useAuthStore()
+useSeoMeta({
+  title: `Pybo :: 로그인`,
+  ogTitle: `Pybo :: 로그인`,
+  ogType: 'website',
+  ogSiteName: 'Pybo',
+  ogDescription: 'Pybo의 Nuxt.js 구현체입니다.',
+  ogImage: '/favicon.png',
+})
 
 const login = async() => {
   await authStore.authUser(user.value)

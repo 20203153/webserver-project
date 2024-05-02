@@ -1,6 +1,18 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
-const authStore = useAuthStore()
+
+const auth = useAuthStore()
+const route = useRoute()
+
+const runtimeConfig = useRuntimeConfig()
+
+watch(() => route.path, async () => {
+  await auth.refresh()
+})
+
+;(async() => {
+  await auth.getUserMeta()
+})()
 </script>
 
 <template>
@@ -11,9 +23,14 @@ const authStore = useAuthStore()
       <BNavbarNav>
         <BNavItem href="#">Link</BNavItem>
       </BNavbarNav>
-      <BNavbarNav class="ms-auto mb-2 mb-lg-0">
-        <BNavItem href="/login" v-if="!authStore.authenticated">Login</BNavItem>
-        <BNavItem href="/logout" v-else>Logout</BNavItem>
+      <BNavbarNav class="ms-auto mb-2 mb-lg-0" v-if="auth.authenticated">
+        <BNavItem>
+          <img :src="`${runtimeConfig.public.BASE_URL}/media/${auth.userInfo.image ?? 'default.png'}`" style="width:25px;"> &nbsp;{{ auth.userInfo.nickname }}
+        </BNavItem>
+        <BNavItem href="/logout">로그아웃</BNavItem>
+      </BNavbarNav>
+      <BNavbarNav class="ms-auto mb-2 mb-lg-0" v-else>
+        <BNavItem href="/login">로그인</BNavItem>
       </BNavbarNav>
     </BCollapse>
   </BNavbar>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import axios from 'axios'
 import {useAuthStore} from "~/stores/auth";
+import dayjs from "dayjs";
 
 interface IAnswers {
   id: number,
@@ -100,11 +101,11 @@ try {
         <div class="d-flex justify-content-end">
           <div class="badge badge-light p-2 text-left mx-3" v-if="(new Date(data.created_at)).getTime() < (new Date(data.updated_at).getTime())">
             <div class="mb-2 text-black">modified at</div>
-            <div class="text-black">{{ new Date(data.updated_at).toISOString().replace('T', ' ').slice(0, -5) }}</div>
+            <div class="text-black">{{ dayjs(data.updated_at).format('YYYY-MM-DD HH:mm:ss') }}</div>
           </div>
           <div class="badge badge-light p-2 text-left">
             <div class="mb-2 text-black">{{ data.owner }}</div>
-            <div class="text-black">{{ new Date(data.updated_at).toISOString().replace('T', ' ').slice(0, -5) }}</div>
+            <div class="text-black">{{ dayjs(data.created_at).format('YYYY-MM-DD HH:mm:ss') }}</div>
           </div>
           <div class="my-3">
             <a v-bind:href="`/question/edit/${route.params.id}`" class="btn btn-sm btn-outline-secondary">수정</a>
@@ -119,8 +120,10 @@ try {
         <div class="card-body">
           <div class="card-text" style="white-space: pre-line;">{{ answer.content }}</div>
           <span>
-            - {{ answer.owner }}, {{ new Date(answer.created_at).toISOString().replace('T', ' ').slice(0, -5)}}
-            <span v-if="(new Date(answer.created_at)).getTime() < (new Date(answer.updated_at).getTime())">수정: {{ new Date(answer.updated_at).toISOString().replace('T', ' ').slice(0, -5) }} </span>
+            - {{ answer.owner }}, {{ dayjs(answer.created_at).format('YYYY-MM-DD HH:mm:ss') }}
+            <span v-if="(new Date(answer.created_at)).getTime() < (new Date(answer.updated_at).getTime())">
+              수정: {{ dayjs(answer.updated_at).format('YYYY-MM-DD HH:mm:ss') }}
+            </span>
 
             <a href="#" class="btn btn-sm btn-outline-secondary">수정</a>
             <a href="#" class="btn btn-sm btn-danger" @click="question_delete" v-bind:disabled="user.uid != data.owner_id">삭제</a>

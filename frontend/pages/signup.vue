@@ -1,4 +1,13 @@
 <script lang="ts">
+useSeoMeta({
+  title: `Pybo :: 회원가입`,
+  ogTitle: `Pybo :: 회원가입`,
+  ogType: 'website',
+  ogSiteName: 'Pybo',
+  ogDescription: 'Pybo의 Nuxt.js 구현체입니다.',
+  ogImage: '/favicon.png',
+})
+
 export default {
   data() {
     return {
