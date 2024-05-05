@@ -18,7 +18,8 @@ export default defineNuxtConfig({
   css: ['bootstrap/dist/css/bootstrap.min.css'],
   runtimeConfig: {
     public: {
-      BASE_URL: process.env.BASE_URL || 'http://localhost:8000'
+      backendUrl: process.env.BASE_URL || 'http://localhost:8000',
+      recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || ''
     }
   }
 })

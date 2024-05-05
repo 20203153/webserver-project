@@ -4,6 +4,8 @@ import {useAuthStore} from "~/stores/auth";
 const router = useRouter()
 const authStore = useAuthStore()
 
-authStore.logout()
-router.push('/')
+;(async() => {
+  await authStore.logout()
+  await router.push('/')
+})()
 </script>

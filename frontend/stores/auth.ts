@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import nuxt from 'nuxt'
 
 const _15MIN = 15 * 60 * 1000;
 
@@ -18,7 +17,7 @@ export const useAuthStore = defineStore('auth', () => {
     const token = useCookie('token')
     const refreshToken = useCookie('refreshToken')
     const config = useRuntimeConfig()
-    const BASE_URL = config.public.BASE_URL
+    const BASE_URL = config.public.backendUrl
 
     if(token.value) {
         authenticated.value = true
@@ -26,28 +25,31 @@ export const useAuthStore = defineStore('auth', () => {
 
     const getUserMeta = async() => {
         loading.value = true;
-        const response: {id: number, username: string, email: string, nickname: string, image: string}  = await $fetch(`${BASE_URL}/users/profile/`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token.value}`
+        try {
+            const response: {id: number, username: string, email: string, nickname: string, image: string}  = await $fetch(`${BASE_URL}/users/profile/`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token.value}`
+                }
+            })
+            if(response) {
+                userInfo.value = {
+                    id: response.id,
+                    email: response.email,
+                    image: response.image,
+                    nickname: response.nickname,
+                    username: response.username,
+                    lastUpdate: new Date()
+                }
+            } else {
+                token.value = null
+                refreshToken.value = null
+                authenticated.value = false
             }
-        })
-        if(response) {
-            userInfo.value = {
-                id: response.id,
-                email: response.email,
-                image: response.image,
-                nickname: response.nickname,
-                username: response.username,
-                lastUpdate: new Date()
-            }
-        } else {
+        } catch(e) {
             token.value = null
             refreshToken.value = null
             authenticated.value = false
-
-            await refresh()
-            await getUserMeta()
         }
     }
 

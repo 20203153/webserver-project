@@ -26,7 +26,7 @@ const question_create = async () => {
   if(question.value.subject == '' || question.value.content == '') return
 
   try {
-    const response = await axios.post(`${runtimeConfig.public.BASE_URL}/pybo/question/`, question.value, {
+    const response = await axios.post(`${runtimeConfig.public.backendUrl}/pybo/question/`, question.value, {
       headers: {
         'Authorization': `Bearer ${user.token}`
       }

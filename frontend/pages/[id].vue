@@ -3,6 +3,7 @@ import axios from 'axios'
 import dayjs from 'dayjs'
 import {useAuthStore} from "~/stores/auth";
 import type {Ref} from "vue";
+import {runtime} from "std-env";
 
 const route = useRoute()
 const user = useAuthStore()
@@ -12,6 +13,7 @@ const currentTopic: Ref<string[]> = ref([])
 const pageList: Ref<number[]> = ref([])
 
 const runtimeConfig = useRuntimeConfig()
+const BASE_URL = runtimeConfig.public.backendUrl
 
 useSeoMeta({
   title: `Pybo :: 질문 - ${currentPage.value}페이지`,
@@ -61,7 +63,7 @@ const calculatePageList = (currentPage: number, totalPage: number, pageRange: nu
 }
 
 const getPage = async() => {
-  const response = await axios.get(`${runtimeConfig.public.BASE_URL}/pybo/?page=${currentPage.value}${currentTopic.value.length > 0 ? `&topic=${currentTopic.value.join(',')}` : ''}`)
+  const response = await axios.get(`${BASE_URL}/pybo/?page=${currentPage.value}${currentTopic.value.length > 0 ? `&topic=${currentTopic.value.join(',')}` : ''}`)
   data.value = response.data
 
   pageList.value = calculatePageList(currentPage.value, Math.ceil(data.value.count / 10))

@@ -30,6 +30,7 @@ const runtimeConfig = useRuntimeConfig()
 const router = useRouter()
 const route = useRoute()
 const user = useAuthStore()
+const BASE_URL = runtimeConfig.public.backendUrl
 
 const isError = ref(false)
 const data = ref<IQuestions>({
@@ -52,7 +53,7 @@ const answer = ref({
 
 const answer_create = async () => {
   console.log(answer.value.content)
-  const response = await $fetch(`${runtimeConfig.public.BASE_URL}/pybo/answer/${route.params.id}`, {
+  const response = await $fetch(`${BASE_URL}/pybo/answer/${route.params.id}`, {
     method: 'POST',
     body: answer.value,
     headers: {
@@ -68,7 +69,7 @@ const question_delete = async() => {
   console.log(user.userInfo.id, data.value.owner_id)
   if(user.userInfo.id != data.value.owner_id) return;
   try {
-    const response = await $fetch(`${runtimeConfig.public.BASE_URL}/pybo/${route.params.id}`, {
+    const response = await $fetch(`${BASE_URL}/pybo/${route.params.id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${user.token}`
@@ -81,7 +82,7 @@ const question_delete = async() => {
 }
 
 try {
-  const response = await axios.get(`${runtimeConfig.public.BASE_URL}/pybo/${route.params.id}`)
+  const response = await axios.get(`${BASE_URL}/pybo/${route.params.id}`)
   data.value = response.data
   answer.value.question = data.value.id
 } catch (error) {
