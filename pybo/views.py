@@ -37,9 +37,20 @@ class QuestionCreateAPI(APIView):
     def post(self, request, *args, **kwargs):
         serializer = QuestionSerializer(data=request.data)
         if serializer.is_valid():
-            print(request.user.id)
             serializer.save(owner_id=request.user.id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, question_id=None, *args, **kwargs):
+        question = get_object_or_404(Question, id=question_id)
+        if question.owner_id != request.user.id:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        serializer = QuestionSerializer(question, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -60,17 +71,6 @@ class QuestionDetailAPI(APIView):
         else:
             serializer = QuestionSerializer()
         return Response(serializer.data)
-
-    def put(self, request, question_id=None, *args, **kwargs):
-        qid = question_id or self.kwargs.get('question_id')
-        question = get_object_or_404(Question, id=qid)
-
-        serializer = QuestionSerializer(data=request.data, instance=question)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, question_id=None, *args, **kwargs):
         qid = question_id or self.kwargs.get('question_id')
@@ -94,26 +94,6 @@ class AnswerDetailAPI(APIView):
             serializer = QuestionSerializer()
         return Response(serializer.data)
 
-    def put(self, request, question_id=None, answer_id=None, *args, **kwargs):
-        qid = question_id or self.kwargs.get('question_id')
-        aid = answer_id or self.kwargs.get('answer_id')
-        answer = get_object_or_404(Answer, question=qid, id=aid)
-
-        serializer = AnswerSerializer(data=request.data, instance=answer)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, question_id=None, answer_id=None, *args, **kwargs):
-        qid = question_id or self.kwargs.get('question_id')
-        aid = answer_id or self.kwargs.get('answer_id')
-        answer = get_object_or_404(Answer, question=qid, id=aid)
-
-        answer.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class AnswerCreateAPI(APIView):
     serializer_class = AnswerSerializer
@@ -125,7 +105,6 @@ class AnswerCreateAPI(APIView):
         question = get_object_or_404(Question, id=qid)
 
         serializer = AnswerSerializer(data=request.data)
-        print(request.user)
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         elif serializer.is_valid():
@@ -133,6 +112,30 @@ class AnswerCreateAPI(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, question_id=None, answer_id=None, *args, **kwargs):
+        answer = get_object_or_404(Answer, id=answer_id)
+
+        print(request.user.id)
+        if answer.owner_id != request.user.id:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        serializer = AnswerSerializer(answer, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, question_id=None, answer_id=None, *args, **kwargs):
+        aid = answer_id or self.kwargs.get('answer_id')
+        answer = get_object_or_404(Answer, id=aid)
+
+        if answer.owner_id != request.user.id:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        answer.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TopicListAPI(ListAPIView):

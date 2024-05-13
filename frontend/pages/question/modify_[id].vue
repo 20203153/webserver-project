@@ -2,9 +2,16 @@
 import axios from "axios";
 import { useAuthStore } from "~/stores/auth";
 
+const runtimeConfig = useRuntimeConfig()
+const router = useRouter()
+const route = useRoute()
+const user = useAuthStore()
+
+const BASE_URL = runtimeConfig.public.backendUrl
+
 useSeoMeta({
-  title: `Pybo :: 질문쓰기`,
-  ogTitle: `Pybo :: 질문쓰기`,
+  title: `Pybo :: 질문수정 :: ${route.params.id}`,
+  ogTitle: `Pybo :: 질문수정 :: ${route.params.id}`,
   ogType: 'website',
   ogSiteName: 'Pybo',
   ogDescription: 'Pybo의 Nuxt.js 구현체입니다.',
@@ -14,21 +21,19 @@ useSeoMeta({
 const question = ref({
   subject: '',
   content: '',
-  topic: ['토픽1']
+  topic: ['']
 })
 
-const runtimeConfig = useRuntimeConfig()
-const router = useRouter()
-const route = useRoute()
-const user = useAuthStore()
+const get_question = async () => {
+  const response = await axios.get(`${BASE_URL}/pybo/${route.params.id}`)
+  question.value = response.data
+}
 
-const BASE_URL = runtimeConfig.public.backendUrl
-
-const question_create = async () => {
+const question_modify = async () => {
   if(question.value.subject == '' || question.value.content == '') return
 
   try {
-    const response = await axios.post(`${BASE_URL}/pybo/question/`, question.value, {
+    const response = await axios.put(`${runtimeConfig.public.backendUrl}/pybo/question/${route.params.id}/`, question.value, {
       headers: {
         'Authorization': `Bearer ${user.token}`
       }
@@ -37,14 +42,17 @@ const question_create = async () => {
   } catch(e) {
     console.log(e)
   }
-
 }
+
+;(async() => {
+  await get_question()
+})()
 </script>
 
 <template>
 <div class="container">
-  <h5 class="my-3 border-bottom pb-2">질문 등록</h5>
-  <form class="post-form my-3" @submit.prevent="question_create">
+  <h5 class="my-3 border-bottom pb-2">질문 수정</h5>
+  <form class="post-form my-3" @submit.prevent="question_modify">
     <div class="form-group">
       <label for="subject">제목</label>
       <input type="text" class="form-control" name="subject" id="subject" v-model="question.subject" />

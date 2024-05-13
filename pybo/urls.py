@@ -21,11 +21,20 @@ from django.urls import path
 from pybo import views
 
 urlpatterns = [
+    # question_list
     path('', views.QuestionListAPI.as_view(), name='index'),
+
+    # questions
     path('<int:question_id>/', views.QuestionDetailAPI.as_view(), name='question'),
     path('question/', views.QuestionCreateAPI.as_view(), name='question_create'),
+    path('question/<int:question_id>/', views.QuestionCreateAPI.as_view(), name='question_modify'),
+
+    # answers
     path('<int:question_id>/<int:answer_id>/', views.AnswerDetailAPI.as_view(), name='answer'),
-    path('answer/<int:question_id>', views.AnswerCreateAPI.as_view(), name='answer_create'),
+    path('answer/<int:question_id>/', views.AnswerCreateAPI.as_view(), name='answer_create'),
+    path('answer/<int:question_id>/<int:answer_id>/', views.AnswerCreateAPI.as_view(), name='answer_modify'),
+
+    # topics
     path('topics/', views.TopicListAPI.as_view(), name='topics'),
     path('topics/<int:topic_id>/', views.TopicAPI.as_view(), name='topic')
 ]

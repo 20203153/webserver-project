@@ -41,6 +41,7 @@ class SlugRelatedGetOrCreateField(serializers.SlugRelatedField):
 class QuestionSerializer(serializers.ModelSerializer):
     owner = serializers.StringRelatedField(source='owner.profile.nickname', read_only=True)
     answer = AnswerSerializer(many=True, source='answer_set', read_only=True)
+    hit = serializers.IntegerField(read_only=True)
     topic = SlugRelatedGetOrCreateField(
         slug_field='content', many=True, queryset=QuestionTopic.objects.all()
     )

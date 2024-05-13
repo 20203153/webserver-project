@@ -2,6 +2,7 @@
 import axios from 'axios'
 import {useAuthStore} from "~/stores/auth";
 import dayjs from "dayjs";
+import type {Ref} from "vue";
 
 interface IAnswers {
   id: number,
@@ -46,16 +47,54 @@ const data = ref<IQuestions>({
   answer: []
 })
 
+const answer_modify_id: Ref<number> = ref(0)
 const answer = ref({
   content: '',
   question: 0
 })
+const M_answer = ref({
+  content: '',
+  question: 0,
+})
 
 const answer_create = async () => {
   console.log(answer.value.content)
-  const response = await $fetch(`${BASE_URL}/pybo/answer/${route.params.id}`, {
+  const response = await $fetch(`${BASE_URL}/pybo/answer/${route.params.id}/`, {
     method: 'POST',
     body: answer.value,
+    headers: {
+      'Authorization': `Bearer ${user.token}`
+    }
+  })
+
+  router.go(0)
+}
+
+const answer_modify_ready = async(id: number) => {
+  const answers = data.value.answer.filter((d) => d.id === id)[0]
+  if(answers.owner_id != user.userInfo.id) return
+
+  M_answer.value.content = answers.content
+  answer_modify_id.value = id
+}
+
+const answer_modify = async() => {
+  console.log(M_answer.value.content)
+  const response = await $fetch(`${BASE_URL}/pybo/answer/${route.params.id}/${answer_modify_id.value}/`, {
+    method: 'PUT',
+    body: M_answer.value,
+    headers: {
+      'Authorization': `Bearer ${user.token}`
+    }
+  })
+
+  router.go(0)
+}
+
+const answer_delete = async(id: number) => {
+  const response = await $fetch(`${BASE_URL}/pybo/answer/${route.params.id}/${id}/`, {
+    method: 'DELETE',
+    body: M_answer.value,
     headers: {
       'Authorization': `Bearer ${user.token}`
     }
@@ -85,6 +124,7 @@ try {
   const response = await axios.get(`${BASE_URL}/pybo/${route.params.id}`)
   data.value = response.data
   answer.value.question = data.value.id
+  M_answer.value.question = data.value.id
 } catch (error) {
   console.log(error)
   isError.value = true
@@ -109,8 +149,8 @@ try {
             <div class="text-black">{{ dayjs(data.created_at).format('YYYY-MM-DD HH:mm:ss') }}</div>
           </div>
           <div class="my-3">
-            <a v-bind:href="`/question/edit/${route.params.id}`" class="btn btn-sm btn-outline-secondary">수정</a>
-            <button class="btn btn-sm btn-danger" v-on:click="question_delete">삭제</button>
+            <NuxtLink :href="`/question/modify_${data.id}`" class="btn btn-sm btn-outline-secondary" :disabled="user.userInfo.id != data.owner_id">수정</NuxtLink>
+            <button class="btn btn-sm btn-danger" :disabled="user.userInfo.id != data.owner_id" @click="question_delete">삭제</button>
           </div>
         </div>
       </div>
@@ -118,7 +158,7 @@ try {
     <div class="mt-3" v-if="data.answer.length > 0">
       <div class="card my-3" v-for="answer in data.answer">
         <a v-bind:name="`comment_${answer.id}`"></a>
-        <div class="card-body">
+        <div class="card-body" v-if="answer_modify_id != answer.id">
           <div class="card-text" style="white-space: pre-line;">{{ answer.content }}</div>
           <span>
             - {{ answer.owner }}, {{ dayjs(answer.created_at).format('YYYY-MM-DD HH:mm:ss') }}
@@ -126,10 +166,16 @@ try {
               수정: {{ dayjs(answer.updated_at).format('YYYY-MM-DD HH:mm:ss') }}
             </span>
 
-            <a href="#" class="btn btn-sm btn-outline-secondary">수정</a>
-            <a href="#" class="btn btn-sm btn-danger" @click="question_delete" v-bind:disabled="user.uid != data.owner_id">삭제</a>
+            <button class="btn btn-sm btn-outline-secondary" :disabled="user.userInfo.id != answer.owner_id" type="button" @click="answer_modify_ready(answer.id)">수정</button>
+            <button href="#" class="btn btn-sm btn-danger" :disabled="user.userInfo.id != answer.owner_id" type="button" @click="answer_delete(answer.id)">삭제</button>
           </span>
         </div>
+        <form class="my-3" @submit.prevent="answer_modify" v-else>
+          <div class="form-group">
+            <textarea name="content" id="content" class="form-control" rows="10" v-model="M_answer.content" :disabled="!user.authenticated"></textarea>
+            <input type="submit" value="답변 수정" class="btn btn-primary mt-2" :disabled="!user.authenticated || M_answer.content == ''">
+          </div>
+        </form>
       </div>
     </div>
     <form class="my-3" @submit.prevent="answer_create">
@@ -145,5 +191,7 @@ try {
 </template>
 
 <style scoped>
-
+  [disabled] {
+    pointer-events: none;
+  }
 </style>
