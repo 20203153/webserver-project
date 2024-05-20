@@ -14,15 +14,17 @@ class QuestionListSerializer(serializers.ModelSerializer):
     owner = serializers.StringRelatedField(source='owner.profile.nickname', read_only=True)
     owner_id = serializers.IntegerField(source='owner.id', read_only=True)
     answers = serializers.IntegerField(source='answer_set.count', read_only=True)
+    vote = serializers.IntegerField(source='voters.count', read_only=True)
 
     class Meta:
         model = Question
-        fields = 'id', 'subject', 'created_at', 'updated_at', 'topic', 'owner', 'owner_id', 'hit', 'answers'
+        fields = 'id', 'subject', 'created_at', 'updated_at', 'topic', 'owner', 'owner_id', 'hit', 'answers', 'vote'
 
 
 class AnswerSerializer(serializers.ModelSerializer):
     owner = serializers.StringRelatedField(source='owner.profile.nickname', read_only=True)
     owner_id = serializers.IntegerField(source='owner.id', read_only=True)
+    vote = serializers.IntegerField(source='voters.count', read_only=True)
 
     class Meta:
         model = Answer
@@ -45,8 +47,9 @@ class QuestionSerializer(serializers.ModelSerializer):
     topic = SlugRelatedGetOrCreateField(
         slug_field='content', many=True, queryset=QuestionTopic.objects.all()
     )
+    vote = serializers.IntegerField(source='voters.count', read_only=True)
 
     class Meta:
         model = Question
         fields = ('id', 'subject', 'content', 'created_at', 'updated_at',
-                  'topic', 'owner', 'owner_id', 'answer', 'hit')
+                  'topic', 'owner', 'owner_id', 'answer', 'hit', 'vote')

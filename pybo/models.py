@@ -17,6 +17,7 @@ class Question(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     hit = models.IntegerField(default=0)
+    voters = models.ManyToManyField(User, related_name="voter_question", blank=True)
 
     def __str__(self):
         return f"Question: {self.id} - {self.subject}"
@@ -28,6 +29,7 @@ class Answer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    voters = models.ManyToManyField(User, related_name="voter_answer", blank=True)
 
     def __str__(self):
         return f"Answer: {self.question_id} - {self.content}"

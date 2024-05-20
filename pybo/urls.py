@@ -36,5 +36,9 @@ urlpatterns = [
 
     # topics
     path('topics/', views.TopicListAPI.as_view(), name='topics'),
-    path('topics/<int:topic_id>/', views.TopicAPI.as_view(), name='topic')
+    path('topics/<int:topic_id>/', views.TopicAPI.as_view(), name='topic'),
+
+    # vote
+    path('vote/question/<int:question_id>/', views.QuestionVoteAPI.as_view(), name='question_vote'),
+    path('vote/answer/<int:answer_id>/', views.AnswerVoteAPI.as_view(), name='question_vote'),
 ]

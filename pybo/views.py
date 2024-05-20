@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -54,11 +55,16 @@ class QuestionCreateAPI(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, question_id=None, *args, **kwargs):
+        qid = question_id or self.kwargs.get('question_id')
+        question = get_object_or_404(Question, id=qid)
+
+        question.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class QuestionDetailAPI(APIView):
     serializer_class = QuestionSerializer
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [CustomReadOnly]
 
     def get(self, request, question_id=None, *args, **kwargs):
         qid = question_id or self.kwargs.get('question_id')
@@ -71,13 +77,6 @@ class QuestionDetailAPI(APIView):
         else:
             serializer = QuestionSerializer()
         return Response(serializer.data)
-
-    def delete(self, request, question_id=None, *args, **kwargs):
-        qid = question_id or self.kwargs.get('question_id')
-        question = get_object_or_404(Question, id=qid)
-
-        question.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AnswerDetailAPI(APIView):
@@ -172,3 +171,45 @@ class TopicAPI(APIView):
 
         topic.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class QuestionVoteAPI(APIView):
+    serializer_class = QuestionSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, question_id=None, *args, **kwargs):
+        qid = question_id or self.kwargs.get('question_id')
+        question = get_object_or_404(Question, id=qid)
+
+        if request.user.id == question.owner_id:
+            return Response(False, status=status.HTTP_403_FORBIDDEN)
+
+        user = User.objects.get(id=request.user.id)
+        question.voters.add(user)
+        question.save()
+
+        serializer = QuestionSerializer(question)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AnswerVoteAPI(APIView):
+    serializer_class = AnswerSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, answer_id=None, *args, **kwargs):
+        aid = answer_id or self.kwargs.get('answer_id')
+        answer = get_object_or_404(Answer, id=aid)
+
+        print(f"{request.user.id} {answer.owner_id}")
+
+        if request.user.id == answer.owner_id:
+            return Response(False, status=status.HTTP_403_FORBIDDEN)
+
+        user = User.objects.get(id=request.user.id)
+        answer.voters.add(user)
+        answer.save()
+
+        serializer = AnswerSerializer(answer)
+        return Response(serializer.data, status=status.HTTP_200_OK)
