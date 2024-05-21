@@ -71,7 +71,7 @@ const answer_vote = async() => {
   <div class="card my-3">
     <a v-bind:id="`comment_${answer.id}`"></a>
     <div class="card-body" v-if="!answerModify">
-      <div class="card-text" style="white-space: pre-line;">{{ answer.content }}</div>
+      <div class="card-text" style="white-space: pre-line;"  v-html="$mdRenderer.render(answer.content)" />
       <span>
         - {{ answer.owner }}, {{ dayjs(answer.created_at).format('YYYY-MM-DD HH:mm:ss') }}
         <span v-if="(new Date(answer.created_at)).getTime() < (new Date(answer.updated_at).getTime())">

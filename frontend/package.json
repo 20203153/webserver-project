@@ -13,7 +13,11 @@
     "@nuxtjs/auth": "^4.9.1",
     "@nuxtjs/auth-next": "^5.0.0-1667386184.dfbbb54",
     "@nuxtjs/axios": "^5.13.6",
+    "@types/markdown-it": "^13.0.7",
     "dayjs": "^1.11.11",
+    "markdown-it": "^13.0.2",
+    "markdown-it-highlightjs": "^4.1.0",
+    "md-editor-v3": "^4.15.0",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },
@@ -23,6 +27,7 @@
     "@types/bootstrap": "^5.2.10",
     "bootstrap": "^5.3.3",
     "bootstrap-vue-next": "^0.16.6",
+    "nodejs-package-types": "^1.1.4",
     "nuxt": "^3.11.2",
     "pinia": "^2.1.7"
   }

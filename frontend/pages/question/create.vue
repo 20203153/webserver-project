@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import axios from "axios";
 import { useAuthStore } from "~/stores/auth";
+import { MdEditor } from "md-editor-v3";
+import 'md-editor-v3/lib/style.css'
 
 useSeoMeta({
   title: `Pybo :: 질문쓰기`,
@@ -14,7 +16,7 @@ useSeoMeta({
 const question = ref({
   subject: '',
   content: '',
-  topic: ['토픽1']
+  topic: []
 })
 
 const runtimeConfig = useRuntimeConfig()
@@ -55,9 +57,9 @@ const question_create = async () => {
     </div>
     <div class="form-group">
       <label for="content">내용</label>
-      <textarea class="form-control" name="content" id="content" v-model="question.content" rows="10"/>
+      <MdEditor language="en-US" v-model="question.content"/>
     </div>
-    <div class="form-group">
+    <div class="form-group" style="margin-top: 10px;">
       <button type="submit" class="btn btn-primary" v-bind:class="(question.subject != '' && question.content != '' ? '' : 'disabled')">저장하기</button>
     </div>
   </form>

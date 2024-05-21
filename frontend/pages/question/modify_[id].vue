@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import axios from "axios";
 import { useAuthStore } from "~/stores/auth";
+import {MdEditor} from "md-editor-v3";
 
 const runtimeConfig = useRuntimeConfig()
 const router = useRouter()
@@ -63,7 +64,7 @@ const question_modify = async () => {
     </div>
     <div class="form-group">
       <label for="content">내용</label>
-      <textarea class="form-control" name="content" id="content" v-model="question.content" rows="10"/>
+      <MdEditor language="en-US" v-model="question.content"/>
     </div>
     <div class="form-group">
       <button type="submit" class="btn btn-primary" v-bind:class="(question.subject != '' && question.content != '' ? '' : 'disabled')">저장하기</button>

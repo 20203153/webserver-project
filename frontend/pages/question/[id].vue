@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {useAuthStore} from "~/stores/auth"
 import dayjs from "dayjs"
+import {MdEditor} from "md-editor-v3";
 
 export interface IAnswers {
   id: number,
@@ -102,6 +103,8 @@ const question_vote = async() => {
 }
 
 try {
+  await user.getUserMeta()
+
   data.value = await $fetch(`${BASE_URL}/pybo/${route.params.id}`, {
     method: 'GET',
     headers: {
@@ -131,7 +134,9 @@ try {
   <div class="col-11">
     <div class="card">
       <div class="card-body">
-        <div class="card-text" style="white-space: pre-line;">{{ data.content }}</div>
+        <div class="card-text" style="white-space: pre-line;"
+          v-html="$mdRenderer.render(data.content)"
+        />
         <div class="d-flex justify-content-end">
           <div class="badge badge-light p-2 text-left mx-3" v-if="(new Date(data.created_at)).getTime() < (new Date(data.updated_at).getTime())">
             <div class="mb-2 text-black">modified at</div>
@@ -158,7 +163,7 @@ try {
     </div>
     <form class="my-3" @submit.prevent="answer_create">
       <div class="form-group">
-        <textarea name="content" id="content" class="form-control" rows="10" v-model="answer.content" :disabled="!user.authenticated"></textarea>
+        <MdEditor language="en-US" v-model="answer.content" :disabled="!user.authenticated" />
         <input type="submit" value="답변 등록" class="btn btn-primary mt-2" :disabled="!user.authenticated || answer.content == ''">
       </div>
     </form>
