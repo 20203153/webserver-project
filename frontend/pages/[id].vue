@@ -33,6 +33,7 @@ interface IQuestions {
   owner: string,
   owner_id: number,
   hit: number,
+  vote: number,
   answers: number
 }
 
@@ -89,6 +90,7 @@ try {
       <BThead head-variant="dark">
         <BTr>
           <BTh>번호</BTh>
+          <BTh>추천</BTh>
           <BTh style="width: 50%">제목</BTh>
           <BTh>글쓴이</BTh>
           <BTh>작성 일자</BTh>
@@ -98,6 +100,9 @@ try {
       <BTbody>
         <BTr v-for="question in data.results">
           <BTh>{{ question.id }}</BTh>
+          <BTh>
+            <span v-if="question.vote > 0" class="badge bg-warning px-2 py-1">{{ question.vote }}</span>
+          </BTh>
           <BTh>
             <nuxt-link v-bind:to="`/question/${question.id}`">{{ question.subject }}</nuxt-link>
             <span class="text-danger small mx-2" v-if="question.answers > 0">{{ question.answers }}</span>

@@ -163,13 +163,12 @@ try {
     </div>
     <form class="my-3" @submit.prevent="answer_create">
       <div class="form-group">
-        <MdEditor language="en-US" v-model="answer.content" :disabled="!user.authenticated" />
+        <MdEditor language="en-US" v-model="answer.content" v-if="user.authenticated" />
+        <p v-else>답변을 등록하려면 <NuxtLink to="/login">로그인</NuxtLink>하세요!</p>
         <input type="submit" value="답변 등록" class="btn btn-primary mt-2" :disabled="!user.authenticated || answer.content == ''">
       </div>
     </form>
   </div>
-
-  <button class="btn btn-primary mt-2" @click="user.refresh(); user.getUserMeta()">refresh</button>
 </div>
 </template>
 

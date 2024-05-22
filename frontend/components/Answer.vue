@@ -18,7 +18,7 @@ const M_answer = ref({
   question: props.questionId,
 })
 
-const answer_modify_ready = async(id: number) => {
+const answer_modify_ready = async() => {
   if (answer.owner_id != user.userInfo.id) return
   answerModify.value = true
 }
@@ -37,7 +37,7 @@ const answer_modify = async() => {
   router.go(0)
 }
 
-const answer_delete = async(id: number) => {
+const answer_delete = async() => {
   const response = await $fetch(`${BASE_URL}/pybo/answer/${route.params.id}/${answer.id}/`, {
     method: 'DELETE',
     body: M_answer.value,
@@ -85,8 +85,8 @@ const answer_vote = async() => {
           </button>
         </div>
         <div class="my-3" v-else>
-          <button class="btn btn-sm btn-outline-secondary" :disabled="user.userInfo.id != answer.owner_id" type="button" @click="answer_modify_ready(answer.id)">수정</button>
-          <button href="#" class="btn btn-sm btn-danger" :disabled="user.userInfo.id != answer.owner_id" type="button" @click="answer_delete(answer.id)">삭제</button>
+          <button class="btn btn-sm btn-outline-secondary" :disabled="user.userInfo.id != answer.owner_id" type="button" @click="answer_modify_ready">수정</button>
+          <button href="#" class="btn btn-sm btn-danger" :disabled="user.userInfo.id != answer.owner_id" type="button" @click="answer_delete">삭제</button>
         </div>
       </div>
     </div>
